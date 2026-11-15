@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"image/png"
-	"strings"
 	"io"
 	"net/http"
+	"strings"
 )
 
 const maxLogoBytes = 5 << 20

@@ -6,6 +6,7 @@ import (
 	"image/png"
 	"io"
 	"net/http"
+	"strings"
 )
 
 const maxLogoBytes = 5 << 20
@@ -46,8 +47,18 @@ func uploadLogo(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "logo too large", http.StatusRequestEntityTooLarge)
 		return
 	}
+	if strings.HasPrefix(strings.TrimSpace(string(data)), "<svg") || strings.HasPrefix(strings.TrimSpace(string(data)), "<?xml") {
+		width, height, err := inspectSVG(data)
+		if err != nil {
+			http.Error(w, "unsupported or unsafe SVG", http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(uploadResponse{"svg", width, height, len(data)})
+		return
+	}
 	if len(data) < 8 || !bytes.Equal(data[:8], []byte{137, 80, 78, 71, 13, 10, 26, 10}) {
-		http.Error(w, "PNG only in this milestone", http.StatusUnsupportedMediaType)
+		http.Error(w, "PNG or restricted SVG only in this milestone", http.StatusUnsupportedMediaType)
 		return
 	}
 	cfg, err := png.DecodeConfig(bytes.NewReader(data))

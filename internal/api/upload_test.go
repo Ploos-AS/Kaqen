@@ -51,7 +51,7 @@ func TestPNG(t *testing.T) {
 
 func TestUnsupported(t *testing.T) {
 	w := httptest.NewRecorder()
-	NewHandler().ServeHTTP(w, uploadRequest(t, []byte("<svg/>")))
+	NewHandler().ServeHTTP(w, uploadRequest(t, []byte("not an image")))
 	if w.Code != http.StatusUnsupportedMediaType {
 		t.Fatalf("status %d", w.Code)
 	}

@@ -64,3 +64,11 @@ func TestCorrupt(t *testing.T) {
 		t.Fatalf("status %d", w.Code)
 	}
 }
+
+func TestCorruptWebP(t *testing.T) {
+	w := httptest.NewRecorder()
+	NewHandler().ServeHTTP(w, uploadRequest(t, []byte("RIFFxxxxWEBP")))
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+}

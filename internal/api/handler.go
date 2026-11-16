@@ -12,5 +12,6 @@ func NewHandler() http.Handler {
 		_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 	})
 	mux.HandleFunc("POST /api/v1/logos/inspect", uploadLogo)
+	mux.HandleFunc("POST /api/v1/favicons", generateFavicons)
 	return mux
 }

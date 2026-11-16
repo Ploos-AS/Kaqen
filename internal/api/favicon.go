@@ -64,7 +64,10 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 	}
 	var archive bytes.Buffer
 	zw := zip.NewWriter(&archive)
-	sizes := []struct { name string; size int }{
+	sizes := []struct {
+		name string
+		size int
+	}{
 		{"favicon-16x16.png", 16},
 		{"favicon-32x32.png", 32},
 		{"apple-touch-icon.png", 180},
@@ -99,7 +102,8 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	manifest, _ := json.MarshalIndent(map[string]any{
-		"name": "My Website", "short_name": "Website",
+		"name":       "My Website",
+		"short_name": "Website",
 		"icons": []map[string]string{
 			{"src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png"},
 			{"src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png"},
@@ -110,7 +114,11 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "archive failed", http.StatusInternalServerError)
 		return
 	}
-	snippet := []byte("<link rel=\"icon\" href=\"/favicon.ico\" sizes=\"any\">\n<link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/favicon-32x32.png\">\n<link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\">\n<link rel=\"manifest\" href=\"/site.webmanifest\">\n")
+	snippet := []byte(`<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+`)
 	if err := addZipFile(zw, "head.html", snippet); err != nil {
 		http.Error(w, "archive failed", http.StatusInternalServerError)
 		return

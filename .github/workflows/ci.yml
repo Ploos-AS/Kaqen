@@ -13,6 +13,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - name: Resolve dependencies
+        run: go mod download
       - name: Format
         run: |
           gofmt -l cmd internal

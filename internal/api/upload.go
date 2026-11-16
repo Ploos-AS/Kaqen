@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"golang.org/x/image/webp"
 )
 
 const maxLogoBytes = 5 << 20
@@ -57,8 +59,22 @@ func uploadLogo(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(uploadResponse{"svg", width, height, len(data)})
 		return
 	}
+	if len(data) >= 12 && bytes.Equal(data[:4], []byte("RIFF")) && bytes.Equal(data[8:12], []byte("WEBP")) {
+		cfg, err := webp.DecodeConfig(bytes.NewReader(data))
+		if err != nil || cfg.Width < 1 || cfg.Height < 1 || cfg.Width > maxPixels/cfg.Height {
+			http.Error(w, "invalid WebP dimensions or header", http.StatusBadRequest)
+			return
+		}
+		if _, err := webp.Decode(bytes.NewReader(data)); err != nil {
+			http.Error(w, "corrupt or unsupported WebP", http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(uploadResponse{"webp", cfg.Width, cfg.Height, len(data)})
+		return
+	}
 	if len(data) < 8 || !bytes.Equal(data[:8], []byte{137, 80, 78, 71, 13, 10, 26, 10}) {
-		http.Error(w, "PNG or restricted SVG only in this milestone", http.StatusUnsupportedMediaType)
+		http.Error(w, "PNG, WebP or restricted SVG only", http.StatusUnsupportedMediaType)
 		return
 	}
 	cfg, err := png.DecodeConfig(bytes.NewReader(data))

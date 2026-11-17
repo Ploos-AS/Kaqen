@@ -100,6 +100,25 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 			icoPNGs = append(icoPNGs, out.Bytes())
 		}
 	}
+	// Maskable icons use a separate opaque background and keep the full logo
+	// within the central 80% diameter safe zone (40% of icon width radius).
+	maskBackground := options.Background
+	if !options.UseBackground {
+		maskBackground = color.NRGBA{R: 255, G: 255, B: 255, A: 255}
+	}
+	for _, size := range []int{192, 512} {
+		icon := renderMaskable(img, size, maskBackground)
+		var output bytes.Buffer
+		if err := png.Encode(&output, icon); err != nil {
+			http.Error(w, "maskable encoding failed", http.StatusInternalServerError)
+			return
+		}
+		name := fmt.Sprintf("android-chrome-maskable-%dx%d.png", size, size)
+		if err := addZipFile(zw, name, output.Bytes()); err != nil {
+			http.Error(w, "archive failed", http.StatusInternalServerError)
+			return
+		}
+	}
 	ico48 := renderSquareWithOptions(img, 48, options)
 	var out48 bytes.Buffer
 	if err := png.Encode(&out48, ico48); err != nil {
@@ -117,6 +136,8 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 		"icons": []map[string]string{
 			{"src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png"},
 			{"src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png"},
+			{"src": "/android-chrome-maskable-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
+			{"src": "/android-chrome-maskable-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
 		},
 		"display": "standalone",
 	}, "", "  ")
@@ -188,6 +209,29 @@ func renderSquareWithOptions(src image.Image, size int, opt iconOptions) *image.
 	if available < 1 {
 		available = 1
 	}
+	targetW, targetH := available, available
+	if width > height {
+		targetH = max(1, int(float64(available)*float64(height)/float64(width)))
+	} else {
+		targetW = max(1, int(float64(available)*float64(width)/float64(height)))
+	}
+	rect := image.Rect((size-targetW)/2, (size-targetH)/2, (size-targetW)/2+targetW, (size-targetH)/2+targetH)
+	xdraw.CatmullRom.Scale(dst, rect, src, bounds, xdraw.Over, nil)
+	return dst
+}
+
+// renderMaskable fits the complete logo inside the safe-zone circle.
+// A square inscribed in a circle of radius 0.4*size has side sqrt(2)*0.4*size.
+// We conservatively use 54% of the canvas width, centered.
+func renderMaskable(src image.Image, size int, background color.NRGBA) *image.NRGBA {
+	dst := image.NewNRGBA(image.Rect(0, 0, size, size))
+	draw.Draw(dst, dst.Bounds(), &image.Uniform{C: background}, image.Point{}, draw.Src)
+	bounds := src.Bounds()
+	width, height := bounds.Dx(), bounds.Dy()
+	if width < 1 || height < 1 {
+		return dst
+	}
+	available := size * 54 / 100
 	targetW, targetH := available, available
 	if width > height {
 		targetH = max(1, int(float64(available)*float64(height)/float64(width)))

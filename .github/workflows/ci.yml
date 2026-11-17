@@ -23,6 +23,8 @@ jobs:
           git add go.mod go.sum
           if ! git diff --cached --quiet; then
             git commit -m "Lock SVG rasterizer dependencies"
+            git fetch origin feat/010-svg-rasterization
+            git rebase origin/feat/010-svg-rasterization
             git push origin HEAD:feat/010-svg-rasterization
           fi
       - name: Format

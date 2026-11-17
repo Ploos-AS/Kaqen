@@ -12,7 +12,50 @@
   const padding = document.querySelector("#padding");
   const paddingValue = document.querySelector("#padding-value");
   const background = document.querySelector("#background");
-  padding.addEventListener("input", () => { paddingValue.textContent = padding.value + "%"; });
+  const customColor = document.querySelector("#custom-color");
+  const customLabel = document.querySelector("#custom-color-label");
+  const outputPreview = document.querySelector("#output-preview");
+  const canvases = document.querySelectorAll("[data-icon-size]");
+  let decodedImage = null;
+
+  function selectedBackground() {
+    return background.value === "custom" ? customColor.value : background.value;
+  }
+  function renderPreview() {
+    if (!decodedImage) return;
+    const fraction = Number(padding.value) / 100;
+    const bg = selectedBackground();
+    for (const canvas of canvases) {
+      const ctx = canvas.getContext("2d");
+      const size = canvas.width;
+      ctx.clearRect(0, 0, size, size);
+      if (bg !== "transparent") {
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, size, size);
+      }
+      const available = Math.max(1, Math.floor(size * (1 - 2 * fraction)));
+      const width = decodedImage.naturalWidth;
+      const height = decodedImage.naturalHeight;
+      const targetWidth = width > height ? available : Math.max(1, Math.floor(available * width / height));
+      const targetHeight = width > height ? Math.max(1, Math.floor(available * height / width)) : available;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(decodedImage, Math.floor((size - targetWidth) / 2), Math.floor((size - targetHeight) / 2), targetWidth, targetHeight);
+    }
+    outputPreview.hidden = false;
+  }
+  function updateColorControl() {
+    const custom = background.value === "custom";
+    customColor.hidden = !custom;
+    customLabel.hidden = !custom;
+    renderPreview();
+  }
+  padding.addEventListener("input", () => {
+    paddingValue.textContent = padding.value + "%";
+    renderPreview();
+  });
+  background.addEventListener("change", updateColorControl);
+  customColor.addEventListener("input", renderPreview);
   let selected = null;
   let objectURL = null;
   const limit = 5 * 1024 * 1024;
@@ -24,6 +67,8 @@
     selected = null;
     button.disabled = true;
     preview.hidden = true;
+    outputPreview.hidden = true;
+    decodedImage = null;
   }
   function choose(file) {
     resetPreview();
@@ -39,10 +84,12 @@
         resetPreview(); message("Image exceeds the 16 million pixel limit."); return;
       }
       selected = file;
+      decodedImage = probe;
       image.src = objectURL;
       filename.textContent = file.name;
       info.textContent = `${probe.width} × ${probe.height} · ${(file.size / 1024).toFixed(1)} KiB`;
       preview.hidden = false;
+      renderPreview();
       button.disabled = false;
       message("Ready to generate.");
     };
@@ -71,7 +118,7 @@
       const data = new FormData();
       data.append("logo", selected, selected.name);
       data.append("padding", padding.value);
-      data.append("background", background.value);
+      data.append("background", selectedBackground());
       const response = await fetch("/api/v1/favicons", { method: "POST", body: data });
       if (!response.ok) throw new Error(`Generation failed (HTTP ${response.status}).`);
       const blob = await response.blob();

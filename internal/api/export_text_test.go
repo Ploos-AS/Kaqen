@@ -4,6 +4,8 @@ import (
 	"archive/zip"
 	"bytes"
 	"io"
+	"image"
+	"image/png"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -11,7 +13,11 @@ import (
 )
 
 func TestExportTextUsesRealNewlines(t *testing.T) {
-	pngData := samplePNG(t, 64, 64)
+	var input bytes.Buffer
+	if err := png.Encode(&input, image.NewRGBA(image.Rect(0, 0, 64, 64))); err != nil {
+		t.Fatal(err)
+	}
+	pngData := input.Bytes()
 	req := uploadRequest(t, pngData)
 	req.URL.Path = "/api/v1/favicons"
 	rec := httptest.NewRecorder()

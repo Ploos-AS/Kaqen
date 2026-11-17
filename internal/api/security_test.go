@@ -21,9 +21,9 @@ func TestSecurityHeaders(t *testing.T) {
 		h.ServeHTTP(rec, httptest.NewRequest(tc.method, tc.path, nil))
 		for key, want := range map[string]string{
 			"X-Content-Type-Options": "nosniff",
-			"Referrer-Policy": "no-referrer",
-			"X-Frame-Options": "DENY",
-			"Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+			"Referrer-Policy":        "no-referrer",
+			"X-Frame-Options":        "DENY",
+			"Permissions-Policy":     "camera=(), microphone=(), geolocation=()",
 		} {
 			if got := rec.Header().Get(key); got != want {
 				t.Errorf("%s %s: %s = %q, want %q", tc.method, tc.path, key, got, want)

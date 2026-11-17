@@ -16,6 +16,6 @@ Input limits: 5 MiB and 16 megapixels. ZIP generation is performed in memory wit
 
 The ZIP also includes `android-chrome-maskable-192x192.png` and `android-chrome-maskable-512x512.png`. Both are declared with `purpose: "maskable"` in `site.webmanifest`.
 
-The entire logo is fitted inside a conservative centered square occupying 56% of the canvas, so it remains within the central 80%-diameter safe-zone circle. The rest of the canvas uses the selected solid background; transparent background falls back to opaque white for maskable icons. Ordinary favicon and PWA icons retain their previous rendering settings.
+The entire logo is fitted inside a conservative centered square occupying 54% of the canvas, so it remains within the central 80%-diameter safe-zone circle. The rest of the canvas uses the selected solid background; transparent background falls back to opaque white for maskable icons. Ordinary favicon and PWA icons retain their previous rendering settings.
 
 Browser previews show circular and rounded-square crops. Actual launcher masks vary by platform. Verify with installed PWA tests before production.

@@ -39,3 +39,11 @@ MIT, see [LICENSE](LICENSE).
 - Check that `README.txt` has real line breaks and all manifest names are customized.
 - Do not log uploaded file bodies; verify actual privacy behavior before public claims.
 - Future production deployments should use Ploos-Deploy once it is ready; this repository does not require it yet.
+
+## Runtime safeguards
+
+- HTTP server: 5s header, 30s read, 90s write and 60s idle timeout; 1 MiB maximum request headers.
+- At most two image requests run concurrently per process; additional requests receive HTTP 503 and `Retry-After: 5`.
+- `GET /healthz` checks that the process is responding; `GET /readyz` confirms the HTTP handler is available. Neither probes downstream infrastructure or actual conversion capacity.
+- Reverse proxy should enforce compatible body size and timeout limits. Load-test under real VPS constraints before public beta.
+- Ploos-Deploy integration is intentionally deferred.

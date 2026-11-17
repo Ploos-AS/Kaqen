@@ -3,9 +3,9 @@ package api
 import (
 	"archive/zip"
 	"bytes"
-	"io"
 	"image"
 	"image/png"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"

@@ -7,7 +7,9 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"io"	"net/http/httptest"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 

@@ -32,6 +32,10 @@ func inspectSVG(data []byte) (int, int, error) {
 		"points": true, "fill-rule": true, "clip-rule": true,
 	}
 	depth, width, height := 0, 0, 0
+	const maxSVGElements = 2048
+	const maxSVGPathData = 32768
+	const maxSVGAttributeBytes = 65536
+	elements, attributeBytes := 0, 0
 	for {
 		token, err := decoder.Token()
 		if err == io.EOF {
@@ -48,6 +52,10 @@ func inspectSVG(data []byte) (int, int, error) {
 				return 0, 0, errUnsafeSVG
 			}
 		case xml.StartElement:
+			elements++
+			if elements > maxSVGElements {
+				return 0, 0, errUnsafeSVG
+			}
 			if t.Name.Space != "http://www.w3.org/2000/svg" && t.Name.Space != "" {
 				return 0, 0, errUnsafeSVG
 			}
@@ -74,6 +82,10 @@ func inspectSVG(data []byte) (int, int, error) {
 				}
 			}
 			for _, a := range t.Attr {
+				attributeBytes += len(a.Value)
+				if attributeBytes > maxSVGAttributeBytes || (a.Name.Local == "d" && len(a.Value) > maxSVGPathData) {
+					return 0, 0, errUnsafeSVG
+				}
 				if a.Name.Space != "" || !attrs[a.Name.Local] {
 					// Namespace declarations are permitted only for the SVG namespace.
 					if a.Name.Space == "xmlns" && a.Value == "http://www.w3.org/2000/svg" {

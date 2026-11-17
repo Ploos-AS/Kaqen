@@ -102,8 +102,8 @@
   function choose(file) {
     resetPreview();
     if (!file) { message("No file selected."); return; }
-    if (!["image/png", "image/webp"].includes(file.type)) {
-      message("Choose a PNG or WebP image. SVG export is not supported yet."); return;
+    if (!["image/png", "image/webp", "image/svg+xml"].includes(file.type)) {
+      message("Choose a PNG, WebP or SVG image."); return;
     }
     if (file.size > limit) { message("File exceeds the 5 MiB limit."); return; }
     objectURL = URL.createObjectURL(file);

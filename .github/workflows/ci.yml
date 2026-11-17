@@ -13,8 +13,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - name: Resolve dependencies
-        run: go mod tidy
+      - name: Verify dependency lockfiles
+        run: |
+          go mod tidy -diff
+          git diff --exit-code -- go.mod go.sum
       - name: Format
         run: |
           gofmt -l cmd internal

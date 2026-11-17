@@ -61,12 +61,12 @@ func TestICOHeader(t *testing.T) {
 	}
 }
 
-func TestRejectSVGGeneration(t *testing.T) {
+func TestAcceptStaticSVGGeneration(t *testing.T) {
 	req := uploadRequest(t, []byte(`<svg viewBox="0 0 16 16"></svg>`))
 	req.URL.Path = "/api/v1/favicons"
 	rec := httptest.NewRecorder()
 	NewHandler().ServeHTTP(rec, req)
-	if rec.Code != http.StatusUnsupportedMediaType {
-		t.Fatalf("status %d", rec.Code)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", rec.Code, rec.Body.String())
 	}
 }

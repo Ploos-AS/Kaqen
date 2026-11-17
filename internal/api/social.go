@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	socialWidth = 1200
+	socialWidth  = 1200
 	socialHeight = 630
 )
 

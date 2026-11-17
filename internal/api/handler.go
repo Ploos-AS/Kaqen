@@ -40,7 +40,17 @@ func NewHandler() http.Handler {
 	})
 	mux.Handle("POST /api/v1/logos/inspect", limitConversions(http.HandlerFunc(uploadLogo)))
 	mux.Handle("POST /api/v1/favicons", limitConversions(http.HandlerFunc(generateFavicons)))
-	return mux
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+		if r.URL.Path == "/api/v1/logos/inspect" || r.URL.Path == "/api/v1/favicons" {
+			w.Header().Set("Cache-Control", "no-store")
+			w.Header().Set("Pragma", "no-cache")
+		}
+		mux.ServeHTTP(w, r)
+	})
 }
 
 const maxConcurrentConversions = 2

@@ -1,10 +1,27 @@
+# Development defaults. Production must set a unique COMPOSE_PROJECT_NAME,
+# pin KAQEN_IMAGE by digest and choose an unused KAQEN_BIND_PORT.
 services:
   kaqen:
+    image: ${KAQEN_IMAGE:-kaqen:local}
     build: .
     restart: unless-stopped
     environment:
       ADDR: ":8080"
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:${KAQEN_BIND_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/readyz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     security_opt:
       - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=32m
+    pids_limit: 128
+    mem_limit: 512m
+    cpus: 1.0

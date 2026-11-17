@@ -13,6 +13,9 @@ var webAssets embed.FS
 //go:embed web/index.html
 var indexHTML []byte
 
+//go:embed web/privacy.html
+var privacyHTML []byte
+
 func NewHandler() http.Handler {
 	mux := http.NewServeMux()
 	assets, err := fs.Sub(webAssets, "web")
@@ -29,6 +32,10 @@ func NewHandler() http.Handler {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'")
 		_, _ = w.Write(indexHTML)
+	})
+	mux.HandleFunc("GET /privacy", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = w.Write(privacyHTML)
 	})
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

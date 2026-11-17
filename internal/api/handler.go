@@ -34,7 +34,28 @@ func NewHandler() http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 	})
-	mux.HandleFunc("POST /api/v1/logos/inspect", uploadLogo)
-	mux.HandleFunc("POST /api/v1/favicons", generateFavicons)
+	mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]string{"status": "ready"})
+	})
+	mux.Handle("POST /api/v1/logos/inspect", limitConversions(http.HandlerFunc(uploadLogo)))
+	mux.Handle("POST /api/v1/favicons", limitConversions(http.HandlerFunc(generateFavicons)))
 	return mux
+}
+
+const maxConcurrentConversions = 2
+
+var conversionSlots = make(chan struct{}, maxConcurrentConversions)
+
+func limitConversions(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		select {
+		case conversionSlots <- struct{}{}:
+			defer func() { <-conversionSlots }()
+			next.ServeHTTP(w, r)
+		default:
+			w.Header().Set("Retry-After", "5")
+			http.Error(w, "server busy, retry shortly", http.StatusServiceUnavailable)
+		}
+	})
 }

@@ -222,7 +222,7 @@ func renderSquareWithOptions(src image.Image, size int, opt iconOptions) *image.
 
 // renderMaskable fits the complete logo inside the safe-zone circle.
 // A square inscribed in a circle of radius 0.4*size has side sqrt(2)*0.4*size.
-// We conservatively use 56% of the canvas width, centered.
+// We conservatively use 54% of the canvas width, centered.
 func renderMaskable(src image.Image, size int, background color.NRGBA) *image.NRGBA {
 	dst := image.NewNRGBA(image.Rect(0, 0, size, size))
 	draw.Draw(dst, dst.Bounds(), &image.Uniform{C: background}, image.Point{}, draw.Src)
@@ -231,7 +231,7 @@ func renderMaskable(src image.Image, size int, background color.NRGBA) *image.NR
 	if width < 1 || height < 1 {
 		return dst
 	}
-	available := size * 56 / 100
+	available := size * 54 / 100
 	targetW, targetH := available, available
 	if width > height {
 		targetH = max(1, int(float64(available)*float64(height)/float64(width)))

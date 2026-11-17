@@ -9,6 +9,10 @@
   const info = document.querySelector("#file-info");
   const status = document.querySelector("#status");
   const button = document.querySelector("#generate");
+  const padding = document.querySelector("#padding");
+  const paddingValue = document.querySelector("#padding-value");
+  const background = document.querySelector("#background");
+  padding.addEventListener("input", () => { paddingValue.textContent = padding.value + "%"; });
   let selected = null;
   let objectURL = null;
   const limit = 5 * 1024 * 1024;
@@ -66,6 +70,8 @@
     try {
       const data = new FormData();
       data.append("logo", selected, selected.name);
+      data.append("padding", padding.value);
+      data.append("background", background.value);
       const response = await fetch("/api/v1/favicons", { method: "POST", body: data });
       if (!response.ok) throw new Error(`Generation failed (HTTP ${response.status}).`);
       const blob = await response.blob();

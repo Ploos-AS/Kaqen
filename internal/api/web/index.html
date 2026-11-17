@@ -26,6 +26,18 @@
 <div class="preview-tile"><img id="preview-image" alt="Preview of your selected logo"></div>
 <div><strong id="file-name"></strong><p id="file-info"></p></div>
 </div>
+<fieldset class="options">
+<legend>Customize your icons</legend>
+<label for="padding">Padding: <output id="padding-value">10%</output></label>
+<input id="padding" name="padding" type="range" min="0" max="40" value="10" step="1">
+<label for="background">Background</label>
+<select id="background" name="background">
+<option value="transparent">Transparent</option>
+<option value="#ffffff">White</option>
+<option value="#000000">Black</option>
+<option value="#f5f5f5">Light gray</option>
+</select>
+</fieldset>
 <p id="status" role="status" aria-live="polite">No file selected.</p>
 <button type="submit" id="generate" disabled>Generate favicon ZIP <span aria-hidden="true">↗</span></button>
 </form>

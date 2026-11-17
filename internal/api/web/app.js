@@ -42,7 +42,36 @@
       ctx.imageSmoothingQuality = "high";
       ctx.drawImage(decodedImage, Math.floor((size - targetWidth) / 2), Math.floor((size - targetHeight) / 2), targetWidth, targetHeight);
     }
+    renderMaskablePreviews();
     outputPreview.hidden = false;
+  }
+  function renderMaskablePreviews() {
+    const size = 192;
+    const bg = selectedBackground() === "transparent" ? "#ffffff" : selectedBackground();
+    const width = decodedImage.naturalWidth;
+    const height = decodedImage.naturalHeight;
+    const available = Math.floor(size * 0.56);
+    const targetWidth = width > height ? available : Math.max(1, Math.floor(available * width / height));
+    const targetHeight = width > height ? Math.max(1, Math.floor(available * height / width)) : available;
+    for (const [id, rounded] of [["mask-circle", false], ["mask-rounded", true]]) {
+      const canvas = document.querySelector("#" + id);
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, size, size);
+      ctx.save();
+      ctx.beginPath();
+      if (rounded) {
+        ctx.roundRect(0, 0, size, size, size * 0.22);
+      } else {
+        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+      }
+      ctx.clip();
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, size, size);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(decodedImage, Math.floor((size - targetWidth) / 2), Math.floor((size - targetHeight) / 2), targetWidth, targetHeight);
+      ctx.restore();
+    }
   }
   function updateColorControl() {
     const custom = background.value === "custom";

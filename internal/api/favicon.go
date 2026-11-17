@@ -59,8 +59,14 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		img, err = webp.Decode(bytes.NewReader(data))
+	} else if bytes.Contains(data[:min(len(data), 512)], []byte("<svg")) || bytes.Contains(data[:min(len(data), 512)], []byte("<?xml")) {
+		img, err = rasterizeSVG(data)
+		if err != nil {
+			http.Error(w, "invalid or unsupported SVG", http.StatusBadRequest)
+			return
+		}
 	} else {
-		http.Error(w, "PNG or WebP required; SVG rasterization is not available yet", http.StatusUnsupportedMediaType)
+		http.Error(w, "PNG, WebP or restricted static SVG required", http.StatusUnsupportedMediaType)
 		return
 	}
 	if err != nil {

@@ -2,8 +2,8 @@ package api
 
 import (
 	"embed"
-	"io/fs"
 	"encoding/json"
+	"io/fs"
 	"net/http"
 )
 

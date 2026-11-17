@@ -5,8 +5,13 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"image"
 	"image/png"
+	"image/color"
+	"image/draw"
+	"strconv"
+	"strings"
 	"io"
 	"net/http"
 
@@ -62,6 +67,11 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid image", http.StatusBadRequest)
 		return
 	}
+	options, err := parseIconOptions(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	var archive bytes.Buffer
 	zw := zip.NewWriter(&archive)
 	sizes := []struct {
@@ -76,7 +86,7 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 	}
 	icoPNGs := make([][]byte, 0, 3)
 	for _, item := range sizes {
-		icon := renderSquare(img, item.size)
+		icon := renderSquareWithOptions(img, item.size, options)
 		var out bytes.Buffer
 		if err := png.Encode(&out, icon); err != nil {
 			http.Error(w, "encoding failed", http.StatusInternalServerError)
@@ -90,7 +100,7 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 			icoPNGs = append(icoPNGs, out.Bytes())
 		}
 	}
-	ico48 := renderSquare(img, 48)
+	ico48 := renderSquareWithOptions(img, 48, options)
 	var out48 bytes.Buffer
 	if err := png.Encode(&out48, ico48); err != nil {
 		http.Error(w, "encoding failed", http.StatusInternalServerError)
@@ -131,6 +141,58 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "attachment; filename=\"kaqen-favicons.zip\"")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	_, _ = w.Write(archive.Bytes())
+}
+
+type iconOptions struct {
+	Padding int
+	Background color.NRGBA
+	UseBackground bool
+}
+
+func parseIconOptions(r *http.Request) (iconOptions, error) {
+	var opt iconOptions
+	raw := r.FormValue("padding")
+	if raw != "" {
+		value, err := strconv.Atoi(raw)
+		if err != nil || value < 0 || value > 40 {
+			return opt, fmt.Errorf("padding must be between 0 and 40 percent")
+		}
+		opt.Padding = value
+	}
+	background := strings.TrimSpace(r.FormValue("background"))
+	if background != "" && background != "transparent" {
+		if len(background) != 7 || background[0] != '#' {
+			return opt, fmt.Errorf("background must be #RRGGBB or transparent")
+		}
+		value, err := strconv.ParseUint(background[1:], 16, 24)
+		if err != nil {
+			return opt, fmt.Errorf("background must be #RRGGBB or transparent")
+		}
+		opt.Background = color.NRGBA{R: uint8(value >> 16), G: uint8(value >> 8), B: uint8(value), A: 255}
+		opt.UseBackground = true
+	}
+	return opt, nil
+}
+
+func renderSquareWithOptions(src image.Image, size int, opt iconOptions) *image.NRGBA {
+	dst := image.NewNRGBA(image.Rect(0, 0, size, size))
+	if opt.UseBackground {
+		draw.Draw(dst, dst.Bounds(), &image.Uniform{C: opt.Background}, image.Point{}, draw.Src)
+	}
+	bounds := src.Bounds()
+	width, height := bounds.Dx(), bounds.Dy()
+	if width < 1 || height < 1 { return dst }
+	available := size * (100 - 2*opt.Padding) / 100
+	if available < 1 { available = 1 }
+	targetW, targetH := available, available
+	if width > height {
+		targetH = max(1, int(float64(available)*float64(height)/float64(width)))
+	} else {
+		targetW = max(1, int(float64(available)*float64(width)/float64(height)))
+	}
+	rect := image.Rect((size-targetW)/2, (size-targetH)/2, (size-targetW)/2+targetW, (size-targetH)/2+targetH)
+	xdraw.CatmullRom.Scale(dst, rect, src, bounds, xdraw.Over, nil)
+	return dst
 }
 
 func validDimensions(width, height int) bool {

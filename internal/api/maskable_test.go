@@ -81,7 +81,7 @@ func TestMaskableArchiveAndManifest(t *testing.T) {
 		if f.Name == "site.webmanifest" {
 			var manifest struct {
 				Icons []struct {
-					Src string `json:"src"`
+					Src     string `json:"src"`
 					Purpose string `json:"purpose"`
 				} `json:"icons"`
 			}

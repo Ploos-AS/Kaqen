@@ -154,7 +154,10 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 	snippet := []byte(`<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="manifest" href="/site.webmanifest">\n<meta property="og:image" content="https://example.com/og-image.png">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:image" content="https://example.com/og-image.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:image" content="https://example.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://example.com/og-image.png">
 `)
 	if err := addZipFile(zw, "head.html", snippet); err != nil {
 		http.Error(w, "archive failed", http.StatusInternalServerError)
@@ -169,7 +172,7 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "archive failed", http.StatusInternalServerError)
 		return
 	}
-	guide := []byte("KAQEN WEBSITE ASSET PACKAGE\\n\\n1. Copy the files in this ZIP to your website public root.\\n2. Paste the contents of head.html into the <head> section of your pages.\\n3. Replace https://example.com with your own public HTTPS origin.\\n4. Edit site.webmanifest name and short_name for your website.\\n5. Set og:title and og:description for each page as appropriate.\\n6. Test icons and social previews after deployment.\\n\\nFiles are at the ZIP root to preserve compatibility with existing URLs.\\nThe social card is 1200x630 PNG and uses an opaque white background when transparent is selected.\\n")
+	guide := []byte("KAQEN WEBSITE ASSET PACKAGE\n\n1. Copy the files in this ZIP to your website public root.\n2. Paste the contents of head.html into the <head> section of your pages.\n3. Replace https://example.com with your own public HTTPS origin.\n4. Edit site.webmanifest name and short_name for your website.\n5. Set og:title and og:description for each page as appropriate.\n6. Test icons and social previews after deployment.\n\nFiles are at the ZIP root to preserve compatibility with existing URLs.\nThe social card is 1200x630 PNG and uses an opaque white background when transparent is selected.\n")
 	if err := addZipFile(zw, "README.txt", guide); err != nil {
 		http.Error(w, "archive failed", http.StatusInternalServerError)
 		return

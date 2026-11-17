@@ -9,9 +9,9 @@ import (
 
 func TestIconOptions(t *testing.T) {
 	for _, tc := range []struct {
-		padding string
+		padding    string
 		background string
-		valid bool
+		valid      bool
 	}{
 		{"0", "transparent", true},
 		{"40", "#ff00aa", true},
@@ -31,7 +31,9 @@ func TestIconOptions(t *testing.T) {
 
 func TestRenderOptions(t *testing.T) {
 	src := image.NewNRGBA(image.Rect(0, 0, 10, 10))
-	for i := range src.Pix { src.Pix[i] = 255 }
+	for i := range src.Pix {
+		src.Pix[i] = 255
+	}
 	opt := iconOptions{Padding: 25, Background: color.NRGBA{R: 12, G: 34, B: 56, A: 255}, UseBackground: true}
 	out := renderSquareWithOptions(src, 32, opt)
 	if got := out.NRGBAAt(0, 0); got != opt.Background {

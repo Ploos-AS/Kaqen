@@ -14,3 +14,9 @@
 @media(max-width:580px){.icon-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 .mask-title{margin:24px 0 6px;font-size:1rem}.mask-grid{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px}.mask-item{display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px;border-radius:12px;background:#211d32;min-width:140px}.mask-item canvas{width:96px;height:96px}.mask-item span{font-size:.85rem;color:#d4cbe5}
+
+/* Keyboard navigation and reduced-motion preferences. */
+.skip-link{position:absolute;left:16px;top:-100px;z-index:100;padding:12px 18px;border-radius:8px;background:#fff;color:#171025;font-weight:700}
+.skip-link:focus{top:12px}
+:focus-visible{outline:3px solid #e9d5ff;outline-offset:4px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

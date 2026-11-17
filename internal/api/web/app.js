@@ -142,6 +142,7 @@
     event.preventDefault();
     if (!selected) return;
     button.disabled = true;
+    form.setAttribute("aria-busy", "true");
     message("Generating your favicon package…");
     try {
       const data = new FormData();
@@ -149,7 +150,11 @@
       data.append("padding", padding.value);
       data.append("background", selectedBackground());
       const response = await fetch("/api/v1/favicons", { method: "POST", body: data });
-      if (!response.ok) throw new Error(`Generation failed (HTTP ${response.status}).`);
+      if (!response.ok) {
+        if (response.status === 503) throw new Error("Server is busy. Please try again shortly.");
+        if (response.status === 413) throw new Error("Upload exceeds the size limit.");
+        throw new Error(`Generation failed (HTTP ${response.status}).`);
+      }
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
@@ -163,6 +168,7 @@
     } catch (error) {
       message(error.message || "Unable to generate your ZIP.");
     } finally {
+      form.setAttribute("aria-busy", "false");
       button.disabled = !selected;
     }
   });

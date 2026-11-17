@@ -9,13 +9,14 @@
 <script src="/assets/app.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#generator">Skip to generator</a>
 <main class="shell">
 <header><div class="wordmark">Kaqen<span>.</span></div><p class="eyebrow">LOGO ASSET GENERATOR</p></header>
 <section class="hero" aria-labelledby="title">
 <p class="badge">One logo. Every asset.</p>
 <h1 id="title">Your logo, <em>website-ready.</em></h1>
 <p class="intro">Upload a PNG, WebP or SVG logo. Preview it, then download a ZIP of favicons, Apple touch icons, PWA icons, a social sharing image, and installation instructions.</p>
-<form id="generator" novalidate>
+<form id="generator" novalidate aria-busy="false">
 <label class="drop" id="drop" for="logo">
 <span class="drop-icon" aria-hidden="true">↑</span>
 <strong>Choose a logo or drop it here</strong>
@@ -57,7 +58,7 @@
 <div class="mask-item"><canvas id="mask-rounded" width="192" height="192" role="img" aria-label="Maskable icon preview with rounded square crop"></canvas><span>Rounded square</span></div>
 </div>
 </section>
-<p id="status" role="status" aria-live="polite">No file selected.</p>
+<p id="status" role="status" aria-live="polite" aria-atomic="true">No file selected.</p>
 <button type="submit" id="generate" disabled>Generate website asset ZIP <span aria-hidden="true">↗</span></button>
 </form>
 </section>

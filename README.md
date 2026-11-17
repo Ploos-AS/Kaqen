@@ -29,7 +29,8 @@ See [ROADMAP.md](ROADMAP.md). Phase A generates web/PWA assets from an existing 
 ## License
 MIT, see [LICENSE](LICENSE).
 
-## Beta deployment checklist
+See [public beta acceptance checklist](docs/BETA-ACCEPTANCE.md) for manual browser, accessibility, privacy and operational verification.
+\n## Beta deployment checklist
 
 - Run `go test ./...`, `go vet ./...`, and `go build ./cmd/kaqen`.
 - Put the service behind HTTPS with a reverse proxy; do not expose the development listener directly.

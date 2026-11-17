@@ -3,7 +3,9 @@ package api
 import (
 	"archive/zip"
 	"bytes"
-	"image/png"	"net/http/httptest"
+	"image/png"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 

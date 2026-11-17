@@ -36,8 +36,21 @@
 <option value="#ffffff">White</option>
 <option value="#000000">Black</option>
 <option value="#f5f5f5">Light gray</option>
+<option value="custom">Custom color</option>
 </select>
+<label for="custom-color" id="custom-color-label" hidden>Choose custom background color</label>
+<input id="custom-color" type="color" value="#6750a4" hidden>
 </fieldset>
+<section id="output-preview" class="output-preview" aria-labelledby="output-preview-title" hidden>
+<h2 id="output-preview-title">Live icon preview</h2>
+<p>Preview approximates the exported icons. The server generates the final files.</p>
+<div class="icon-grid">
+<div class="icon-item"><canvas width="16" height="16" data-icon-size="16" role="img" aria-label="16 by 16 pixel icon preview"></canvas><span>16 × 16</span></div>
+<div class="icon-item"><canvas width="32" height="32" data-icon-size="32" role="img" aria-label="32 by 32 pixel icon preview"></canvas><span>32 × 32</span></div>
+<div class="icon-item"><canvas width="180" height="180" data-icon-size="180" role="img" aria-label="180 by 180 pixel icon preview"></canvas><span>180 × 180</span></div>
+<div class="icon-item"><canvas width="512" height="512" data-icon-size="512" role="img" aria-label="512 by 512 pixel icon preview"></canvas><span>512 × 512</span></div>
+</div>
+</section>
 <p id="status" role="status" aria-live="polite">No file selected.</p>
 <button type="submit" id="generate" disabled>Generate favicon ZIP <span aria-hidden="true">↗</span></button>
 </form>

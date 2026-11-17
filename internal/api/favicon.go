@@ -7,13 +7,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
-	"image/png"
 	"image/color"
 	"image/draw"
-	"strconv"
-	"strings"
+	"image/png"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 
 	xdraw "golang.org/x/image/draw"
 	"golang.org/x/image/webp"
@@ -144,8 +144,8 @@ func generateFavicons(w http.ResponseWriter, r *http.Request) {
 }
 
 type iconOptions struct {
-	Padding int
-	Background color.NRGBA
+	Padding       int
+	Background    color.NRGBA
 	UseBackground bool
 }
 
@@ -181,9 +181,13 @@ func renderSquareWithOptions(src image.Image, size int, opt iconOptions) *image.
 	}
 	bounds := src.Bounds()
 	width, height := bounds.Dx(), bounds.Dy()
-	if width < 1 || height < 1 { return dst }
+	if width < 1 || height < 1 {
+		return dst
+	}
 	available := size * (100 - 2*opt.Padding) / 100
-	if available < 1 { available = 1 }
+	if available < 1 {
+		available = 1
+	}
 	targetW, targetH := available, available
 	if width > height {
 		targetH = max(1, int(float64(available)*float64(height)/float64(width)))

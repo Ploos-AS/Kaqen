@@ -4,7 +4,7 @@ on:
     branches: [main]
   pull_request:
 permissions:
-  contents: read
+  contents: write
 jobs:
   go:
     runs-on: ubuntu-latest
@@ -15,6 +15,16 @@ jobs:
           go-version-file: go.mod
       - name: Resolve dependencies
         run: go mod tidy
+      - name: Commit dependency lockfiles (PR #10 only)
+        if: github.event_name == 'pull_request' && github.head_ref == 'feat/010-svg-rasterization'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add go.mod go.sum
+          if ! git diff --cached --quiet; then
+            git commit -m "Lock SVG rasterizer dependencies"
+            git push origin HEAD:feat/010-svg-rasterization
+          fi
       - name: Format
         run: |
           gofmt -l cmd internal

@@ -50,7 +50,7 @@
     const bg = selectedBackground() === "transparent" ? "#ffffff" : selectedBackground();
     const width = decodedImage.naturalWidth;
     const height = decodedImage.naturalHeight;
-    const available = Math.floor(size * 0.56);
+    const available = Math.floor(size * 0.54);
     const targetWidth = width > height ? available : Math.max(1, Math.floor(available * width / height));
     const targetHeight = width > height ? Math.max(1, Math.floor(available * height / width)) : available;
     for (const [id, rounded] of [["mask-circle", false], ["mask-rounded", true]]) {

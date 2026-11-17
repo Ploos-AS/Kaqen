@@ -6,6 +6,7 @@ import (
 	"image/png"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -60,4 +61,16 @@ func TestSVGFaviconZIP(t *testing.T) {
 		}
 	}
 	t.Fatal("favicon missing")
+}
+
+func TestSVGComplexityLimits(t *testing.T) {
+	prefix := `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">`
+	for _, body := range []string{
+		strings.Repeat("<rect width=\"1\" height=\"1\"/>", 2050),
+		"<path d=\"" + strings.Repeat("M1 1 ", 7000) + "\"/>",
+	} {
+		if _, err := rasterizeSVG([]byte(prefix + body + "</svg>")); err == nil {
+			t.Fatal("excessively complex SVG accepted")
+		}
+	}
 }

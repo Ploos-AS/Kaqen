@@ -21,7 +21,7 @@ go test ./...
 docker compose up --build
 ```
 
-Compose binds the service to localhost. Put Caddy in front for public HTTPS deployment.
+Compose binds the service to localhost and includes a readiness health check. Put Caddy in front for public HTTPS deployment. For the permanent app server, read [Forseti deployment readiness](docs/FORSETI-DEPLOYMENT.md) before deploying; Ploos-Deploy takeover is **not yet implemented**.
 
 ## Roadmap
 See [ROADMAP.md](ROADMAP.md). Phase A generates web/PWA assets from an existing logo; Phase B adds a broader brand toolkit.
